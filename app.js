@@ -70,7 +70,14 @@
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
-      img.addEventListener("load", () => frame.classList.add("has-image"), { once: true });
+      img.addEventListener("load", () => {
+        // Match the artwork's actual shape: PS1/PCE square covers and
+        // PSP/PS2/PS3/Vita portrait covers must not share a forced ratio.
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+          frame.style.aspectRatio = img.naturalWidth + " / " + img.naturalHeight;
+        }
+        frame.classList.add("has-image");
+      }, { once: true });
       img.addEventListener("error", () => {
         frame.classList.remove("has-image");
         img.remove();

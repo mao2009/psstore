@@ -99,3 +99,23 @@ dialog{border:1px solid #5a587c;border-radius:16px;padding:0;background:#171e2d;
 .cover-frame.has-image{
   background:#0b1220;
 }
+
+
+/* Overlay the art on the placeholder. Flex siblings previously squeezed the
+   image to part of the frame even with width:100%. */
+.cover-frame{
+  height:auto;
+  aspect-ratio:100 / 143;
+  align-self:flex-start;
+}
+.cover-frame img{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  padding:0;
+  object-fit:cover;
+  object-position:center;
+}
+.cover-placeholder{flex:0 0 100%}

@@ -52,9 +52,16 @@
   }
   function coverNode(game) {
     const frame = element("div", "cover-frame");
-    const place = element("div", "cover-placeholder");
-    fill(place, element("span", "cover-small", "PLAYSTATION"), element("span", "cover-glyph", "✧"), element("span", "cover-platform", game.platform), element("span", "cover-small", "GAME ARCHIVE"));
-    frame.appendChild(place);
+    const placeholder = element("div", "cover-placeholder");
+    // The catalog has few verified cover mappings. Never fabricate an image
+    // or use a cover belonging to a different game or regional edition.
+    fill(placeholder,
+      element("span", "cover-icon", "▤"),
+      element("span", "cover-caption", "画像未登録"),
+      element("span", "cover-platform", game.platform)
+    );
+    frame.appendChild(placeholder);
+
     const key = game.platform + "|" + game.title;
     const url = game.cover || covers[key];
     if (typeof url === "string" && (/^https:\/\/[^\s]+$/.test(url) || /^\.\/assets\/covers\/[\w./%-]+$/.test(url))) {
@@ -63,8 +70,12 @@
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
+      img.addEventListener("load", () => frame.classList.add("has-image"), { once: true });
+      img.addEventListener("error", () => {
+        frame.classList.remove("has-image");
+        img.remove();
+      }, { once: true });
       img.src = url;
-      img.addEventListener("error", () => img.remove(), { once: true });
       frame.appendChild(img);
     }
     return frame;
@@ -274,6 +285,13 @@
     render();
   }
   function bind() {
+    const filterToggle = $("filterToggle");
+    const catalogFilters = $("catalogFilters");
+    filterToggle.addEventListener("click", () => {
+      const expanded = catalogFilters.classList.toggle("is-open");
+      filterToggle.setAttribute("aria-expanded", String(expanded));
+      filterToggle.querySelector(".filter-toggle-label").textContent = expanded ? "絞り込みを閉じる" : "絞り込みを開く";
+    });
     let debounce;
     $("searchInput").addEventListener("input",ev => {
       clearTimeout(debounce);

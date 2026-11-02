@@ -54,7 +54,8 @@
     </section>
 
     <div class="shell workbench" id="catalog">
-      <aside class="filters" aria-label="検索フィルター">
+      <button type="button" id="filterToggle" class="filter-toggle" aria-controls="catalogFilters" aria-expanded="false"><span aria-hidden="true">☷</span><span class="filter-toggle-label">絞り込みを開く</span><span class="filter-toggle-chevron" aria-hidden="true">⌄</span></button>
+      <aside id="catalogFilters" class="filters" aria-label="検索フィルター">
         <div class="filter-head"><h2>絞り込み</h2><button type="button" id="resetFilters" class="reset-link">リセット ↺</button></div>
         <div class="filter-block">
           <h3>プラットフォーム</h3>

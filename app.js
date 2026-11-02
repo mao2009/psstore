@@ -68,8 +68,15 @@
       } else if (game.platform === "PS2") {
         candidates.push("https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/" + serial + ".jpg");
         candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS2/" + serial + ".jpg");
+      } else if (game.platform === "PS3") {
+        // PSMT-Covers PS3 images use uppercase JPG extensions.
+        candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS3/" + compact + ".JPG");
       } else if (game.platform === "PS Vita") {
         candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PSVita/" + compact + ".png");
+      } else if (game.platform === "PSP" && /^(ULJM|ULJS|UCJS|UCJM)\d{5}$/.test(compact)) {
+        // PSP physical serial -> japanese regional cover, when available.
+        candidates.push("https://raw.githubusercontent.com/jamescook/psx-artwork/main/covers/" +
+          compact.slice(0, 4) + "/" + compact.slice(4, 7) + "/" + serial + ".jpg");
       }
     }
     // Keep curated images as the final fallback, including PSP and PC Engine.
@@ -129,7 +136,10 @@
     if (game.devices && game.devices.length) {
       badges.appendChild(element("span", "device-tag", game.devices.map(d => d === "PS Vita" ? "Vita" : d).join(" / ")));
     }
-    fill(intro, badges, element("h3", "game-title", game.title), element("div", "card-maker", "配信元： " + (game.publisher || "未確認")));
+    fill(intro, badges, element("h3", "game-title", game.title),
+      element("div", "card-maker", "配信元： " + (game.publisher || "未確認")),
+      game.serial ? element("div", "card-code", "製品コード： " + game.serial) : null,
+      game.storeId ? element("div", "card-code", "配信タイトルID： " + game.storeId) : null);
     fill(top, coverNode(game), intro);
     const bottom = element("div", "card-bottom");
     const prices = element("div", "price-grid");
@@ -165,6 +175,8 @@
     fill(fields,
       detailField("開発元", game.developer || "未確認"),
       detailField("配信元（元データのメーカー欄）", game.publisher || "未確認"),
+      ...(game.serial ? [detailField("製品コード／タイトルID", game.serial)] : []),
+      ...(game.storeId ? [detailField("配信タイトルID", game.storeId)] : []),
       detailField("DL価格", yen(game.downloadPrice)),
       detailField("中古相場", (Number.isFinite(game.usedMin) ? fmt.format(game.usedMin) + "円" : "未登録") + (Number.isFinite(game.usedMax) && game.usedMax !== game.usedMin ? " 〜 " + fmt.format(game.usedMax) + "円" : "")),
       detailField("プラットフォーム", PLATFORM_LABELS[game.platform] || game.platform),
@@ -345,7 +357,7 @@
         if(json.platform!==platform || !Array.isArray(json.games) || json.count!==json.games.length) throw new Error(platform+" のデータ形式が不正です");
         return json.games;
       }));
-      games=loaded.flat().map((game,order)=>({...game,order,search:normalize([game.title,game.publisher,game.developer,game.notes,PLATFORM_LABELS[game.platform]].join(" "))}));
+      games=loaded.flat().map((game,order)=>({...game,order,search:normalize([game.title,game.publisher,game.developer,game.serial,game.storeId,game.notes,PLATFORM_LABELS[game.platform]].join(" "))}));
       try {const res=await fetch(COVERS_FILE);if(res.ok)covers=await res.json();}catch(error){console.warn("Cover index not found",error);}
       $("totalStat").textContent=fmt.format(games.length);
       loading=false;platformButtons();render();

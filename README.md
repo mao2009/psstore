@@ -6,7 +6,7 @@ PS1 / PS2 / PS3 / PSP / PS Vita / PCエンジンの旧PlayStation Store関連タ
 
 ## GitHub Pagesを公開する（一度だけ）
 
-リポジトリの **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: main / (root) → Save** を設定してください。ビルド不要、ファイルはすでにmainのルートにあります。
+リポジトリの **Settings → Pages → Build and deployment → Source: GitHub Actions** を設定してください。`.github/workflows/pages.yml` が `main` の更新時に3,948件のデータとJavaScript構文を検証し、静的ファイルをPagesへ公開します。Sourceの変更後は Actions → Deploy PS ARCHIVE to GitHub Pages → Run workflow で再実行してください。
 
 ## 主な機能
 

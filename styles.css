@@ -127,3 +127,6 @@ dialog{border:1px solid #5a587c;border-radius:16px;padding:0;background:#171e2d;
   border:0;
 }
 .cover-frame.has-image .cover-placeholder{display:none}
+
+/* Serial and digital title identifiers displayed on cards. */
+.card-code{font-size:10px;line-height:1.4;margin-top:4px;color:#9eabc7;overflow-wrap:anywhere}

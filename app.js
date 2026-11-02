@@ -12,7 +12,7 @@
   ];
   const COVERS_FILE = "./data/covers.json";
   const PLATFORM_LABELS = {
-    "PS1": "PS1 アーカイブス",
+    "PS1": "PS1",
     "PS2": "PS2 アーカイブス",
     "PS3": "PlayStation 3",
     "PSP": "PSP",
@@ -21,12 +21,13 @@
   };
   const fmt = new Intl.NumberFormat("ja-JP");
   const collator = new Intl.Collator("ja-JP", { numeric: true, sensitivity: "base" });
+  const compareTitles = (a,b) => collator.compare(a.sortKana || a.title,b.sortKana || b.title) || collator.compare(a.title,b.title) || a.order-b.order;
   const PAGE_SIZE = 24;
   let games = [];
   let filtered = [];
   let covers = {};
   let loading = true;
-  const state = { q: "", platform: "all", device: "all", price: "all", usedOnly: false, availableOnly: false, sort: "default", view: "grid", page: 1 };
+  const state = { q: "", platform: "all", device: "all", price: "all", sort: "title", view: "grid", page: 1 };
   const $ = id => document.getElementById(id);
   const normalize = value => String(value == null ? "" : value).normalize("NFKC").toLocaleLowerCase("ja-JP").trim();
   const yen = n => Number.isFinite(n) ? fmt.format(n) + "円" : "未登録";
@@ -67,8 +68,15 @@
       } else if (game.platform === "PS2") {
         candidates.push("https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/" + serial + ".jpg");
         candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS2/" + serial + ".jpg");
+      } else if (game.platform === "PS3") {
+        // PSMT-Covers PS3 images use uppercase JPG extensions.
+        candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS3/" + compact + ".JPG");
       } else if (game.platform === "PS Vita") {
         candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PSVita/" + compact + ".png");
+      } else if (game.platform === "PSP" && /^(ULJM|ULJS|UCJS|UCJM)\d{5}$/.test(compact)) {
+        // PSP physical serial -> japanese regional cover, when available.
+        candidates.push("https://raw.githubusercontent.com/jamescook/psx-artwork/main/covers/" +
+          compact.slice(0, 4) + "/" + compact.slice(4, 7) + "/" + serial + ".jpg");
       }
     }
     // Keep curated images as the final fallback, including PSP and PC Engine.
@@ -128,7 +136,10 @@
     if (game.devices && game.devices.length) {
       badges.appendChild(element("span", "device-tag", game.devices.map(d => d === "PS Vita" ? "Vita" : d).join(" / ")));
     }
-    fill(intro, badges, element("h3", "game-title", game.title), element("div", "card-maker", "配信元： " + (game.publisher || "未確認")));
+    fill(intro, badges, element("h3", "game-title", game.title),
+      element("div", "card-maker", "配信元： " + (game.publisher || "未確認")),
+      game.serial ? element("div", "card-code", "製品コード： " + game.serial) : null,
+      game.storeId ? element("div", "card-code", "配信タイトルID： " + game.storeId) : null);
     fill(top, coverNode(game), intro);
     const bottom = element("div", "card-bottom");
     const prices = element("div", "price-grid");
@@ -164,6 +175,8 @@
     fill(fields,
       detailField("開発元", game.developer || "未確認"),
       detailField("配信元（元データのメーカー欄）", game.publisher || "未確認"),
+      ...(game.serial ? [detailField("製品コード／タイトルID", game.serial)] : []),
+      ...(game.storeId ? [detailField("配信タイトルID", game.storeId)] : []),
       detailField("DL価格", yen(game.downloadPrice)),
       detailField("中古相場", (Number.isFinite(game.usedMin) ? fmt.format(game.usedMin) + "円" : "未登録") + (Number.isFinite(game.usedMax) && game.usedMax !== game.usedMin ? " 〜 " + fmt.format(game.usedMax) + "円" : "")),
       detailField("プラットフォーム", PLATFORM_LABELS[game.platform] || game.platform),
@@ -197,7 +210,7 @@
   }
   function sortGames(items) {
     switch (state.sort) {
-      case "title": return items.sort((a,b) => collator.compare(a.title,b.title) || a.order-b.order);
+      case "title": return items.sort(compareTitles);
       case "usedDesc": return items.sort((a,b) => compareNumeric(a,b,"usedMin",true));
       case "usedAsc": return items.sort((a,b) => compareNumeric(a,b,"usedMin",false));
       case "dlAsc": return items.sort((a,b) => compareNumeric(a,b,"downloadPrice",false));
@@ -209,7 +222,7 @@
         if(!b.releaseDate) return -1;
         return a.releaseDate.localeCompare(b.releaseDate) || a.order-b.order;
       });
-      default: return items.sort((a,b) => a.order - b.order);
+      default: return items.sort(compareTitles);
     }
   }
   function syncURL() {
@@ -219,10 +232,10 @@
     if (state.platform !== "all") url.searchParams.set("platform", state.platform);
     if (state.device !== "all") url.searchParams.set("device", state.device);
     if (state.price !== "all") url.searchParams.set("price", state.price);
-    if (state.sort !== "default") url.searchParams.set("sort", state.sort);
+    if (state.sort !== "title") url.searchParams.set("sort", state.sort);
     if (state.page !== 1) url.searchParams.set("page", state.page);
-    if (state.usedOnly) url.searchParams.set("used", "1"); else url.searchParams.delete("used");
-    if (state.availableOnly) url.searchParams.set("available", "1"); else url.searchParams.delete("available");
+    url.searchParams.delete("used");
+    url.searchParams.delete("available");
     history.replaceState(null, "", url.pathname + url.search + url.hash);
   }
   function readURL() {
@@ -231,16 +244,13 @@
     state.platform = FILES.some(f => f[0] === q.get("platform")) ? q.get("platform") : "all";
     state.device = ["PS3","PS Vita"].includes(q.get("device")) ? q.get("device") : "all";
     state.price = ["under1000","1000to3000","3000to6000","6000up","unknown"].includes(q.get("price")) ? q.get("price") : "all";
-    state.sort = ["title","usedDesc","usedAsc","dlAsc","dlDesc","newest","oldest"].includes(q.get("sort")) ? q.get("sort") : "default";
+    state.sort = ["title","usedDesc","usedAsc","dlAsc","dlDesc","newest","oldest"].includes(q.get("sort")) ? q.get("sort") : "title";
     state.page = Math.max(1, Math.min(500, Number.parseInt(q.get("page") || "1",10) || 1));
-    state.usedOnly = q.get("used") === "1"; state.availableOnly = q.get("available") === "1";
   }
   function updateControls() {
     $("searchInput").value = state.q;
     $("sortBy").value = state.sort;
     $("priceFilter").value = state.price;
-    $("usedOnly").checked = state.usedOnly;
-    $("availableOnly").checked = state.availableOnly;
     document.querySelectorAll("[data-device]").forEach(el => el.setAttribute("aria-pressed", String(el.dataset.device === state.device)));
     document.querySelectorAll("[data-platform]").forEach(el => el.setAttribute("aria-pressed", String(el.dataset.platform === state.platform)));
     $("gameGrid").classList.toggle("list-layout", state.view === "list");
@@ -267,8 +277,6 @@
     if (state.platform !== "all") chips.appendChild(element("span","active-chip",PLATFORM_LABELS[state.platform]));
     if (state.device !== "all") chips.appendChild(element("span","active-chip","対象：" + state.device));
     if (state.price !== "all") chips.appendChild(element("span","active-chip","価格指定あり"));
-    if (state.usedOnly) chips.appendChild(element("span","active-chip","中古相場あり"));
-    if (state.availableOnly) chips.appendChild(element("span","active-chip","PS1配信中"));
   }
   function pageChange(n) {
     state.page=n; render();
@@ -290,8 +298,6 @@
     filtered = sortGames(games.filter(g => (
       (state.platform === "all" || g.platform === state.platform) &&
       (state.device === "all" || (g.devices || []).includes(state.device)) &&
-      (!state.usedOnly || Number.isFinite(g.usedMin)) &&
-      (!state.availableOnly || (g.platform === "PS1" && g.status === "販売中")) &&
       priceMatches(g) &&
       queryTokens.every(w => g.search.includes(w))
     )));
@@ -313,7 +319,7 @@
     drawPagination(Math.ceil(filtered.length/PAGE_SIZE));
   }
   function reset() {
-    Object.assign(state,{q:"",platform:"all",device:"all",price:"all",usedOnly:false,availableOnly:false,sort:"default",page:1});
+    Object.assign(state,{q:"",platform:"all",device:"all",price:"all",sort:"title",page:1});
     render();
   }
   function bind() {
@@ -333,8 +339,6 @@
     document.querySelectorAll("[data-device]").forEach(n=>n.addEventListener("click",()=>{state.device=n.dataset.device;state.page=1;render();}));
     $("sortBy").addEventListener("change",ev=>{state.sort=ev.target.value;state.page=1;render();});
     $("priceFilter").addEventListener("change",ev=>{state.price=ev.target.value;state.page=1;render();});
-    $("usedOnly").addEventListener("change",ev=>{state.usedOnly=ev.target.checked;state.page=1;render();});
-    $("availableOnly").addEventListener("change",ev=>{state.availableOnly=ev.target.checked;state.page=1;render();});
     $("resetFilters").addEventListener("click",reset);
     $("gridView").addEventListener("click",()=>{state.view="grid";render();});
     $("listView").addEventListener("click",()=>{state.view="list";render();});
@@ -353,7 +357,7 @@
         if(json.platform!==platform || !Array.isArray(json.games) || json.count!==json.games.length) throw new Error(platform+" のデータ形式が不正です");
         return json.games;
       }));
-      games=loaded.flat().map((game,order)=>({...game,order,search:normalize([game.title,game.publisher,game.developer,game.notes,PLATFORM_LABELS[game.platform]].join(" "))}));
+      games=loaded.flat().map((game,order)=>({...game,order,search:normalize([game.title,game.publisher,game.developer,game.serial,game.storeId,game.notes,PLATFORM_LABELS[game.platform]].join(" "))}));
       try {const res=await fetch(COVERS_FILE);if(res.ok)covers=await res.json();}catch(error){console.warn("Cover index not found",error);}
       $("totalStat").textContent=fmt.format(games.length);
       loading=false;platformButtons();render();

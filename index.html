@@ -7,8 +7,8 @@
   <meta name="description" content="PS1・PS2・PS3・PSP・PS Vita・PCエンジン、旧PlayStation Storeのゲーム3,948タイトルを横断検索。DL価格と中古相場を比較。">
   <title>PS ARCHIVE | プレイステーション ゲームカタログ</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20261103-2">
-  <script src="./app.js?v=20261103-2" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=20261103-3">
+  <script src="./app.js?v=20261103-3" defer></script>
 </head>
 <body>
   <a class="skip" href="#catalog">ゲーム一覧へスキップ</a>
@@ -82,11 +82,6 @@
             <option value="unknown">価格未登録</option>
           </select>
         </div>
-        <div class="filter-block">
-          <h3>追加条件</h3>
-          <label class="checkrow"><input type="checkbox" id="usedOnly"><span>中古相場あり</span></label>
-          <label class="checkrow"><input type="checkbox" id="availableOnly"><span>PS1配信中のみ</span></label>
-        </div>
         <div class="filter-note"><span aria-hidden="true">ⓘ</span><p>開発元・配信元・対応機器は一部未確認です。掲載価格は参考値で、現在の購入可否を保証しません。</p></div>
       </aside>
 
@@ -96,8 +91,7 @@
           <div class="toolbar-actions">
             <label class="sr-only" for="sortBy">並び替え</label>
             <select id="sortBy" aria-label="並び替え">
-              <option value="default">おすすめ順（元データ順）</option>
-              <option value="title">タイトル順（五十音）</option>
+              <option value="title" selected>タイトル順（五十音）</option>
               <option value="usedDesc">中古相場：高い順</option>
               <option value="usedAsc">中古相場：安い順</option>
               <option value="dlAsc">DL価格：安い順</option>

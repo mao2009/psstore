@@ -1,0 +1,69 @@
+name: Deploy PS ARCHIVE to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Validate static catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          expected = {'ps1': 798, 'ps2': 108, 'ps3': 913, 'psp': 869, 'vita': 1215, 'pce': 45}
+          actual = 0
+          for platform, count in expected.items():
+              path = Path('data') / f'{platform}.json'
+              data = json.loads(path.read_text(encoding='utf-8'))
+              assert data['count'] == count == len(data['games']), path
+              ids = [game['id'] for game in data['games']]
+              assert len(ids) == len(set(ids)), path
+              for game in data['games']:
+                  assert game['title'] and game['platform'], (path, game)
+                  assert isinstance(game.get('devices'), list), (path, game)
+              actual += count
+          json.loads(Path('data/covers.json').read_text(encoding='utf-8'))
+          assert actual == 3948, actual
+          print(f'Validated {actual} titles across six platforms')
+          PY
+
+      - name: Prepare published files
+        shell: bash
+        run: |
+          mkdir public
+          cp index.html app.js styles.css favicon.svg .nojekyll public/
+          cp -R data public/data
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

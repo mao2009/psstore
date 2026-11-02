@@ -28,19 +28,19 @@ for (const [file,[platform,expected]] of Object.entries(files)) {
     }
     if (game.serial !== undefined) {
       const format = {
-        "PS1": /^(SLPS|SLPM|SCPS|SCPM|SCAJ|PAPX|PCPX)-\\d{5}$/,
-        "PS2": /^(SLPS|SLPM|SCPS|SCPM|SCAJ|PAPX|PCPX)-\\d{5}$/,
-        "PS3": /^(BLJM|BLJS|BCJS|BCJM|NPJA|NPJB|BCAS|BLAS)\\d{5}$/,
-        "PSP": /^(ULJM|ULJS|UCJS|UCJM)-\\d{5}$/,
-        "PS Vita": /^(PCSG|PCSC|PCSH|PCSD|PCSA|PCSB|PCSE|PCSF|PCSI|PCSP)\\d{5}$/
+        "PS1": /^(SLPS|SLPM|SCPS|SCPM|SCAJ|PAPX|PCPX)-\d{5}$/,
+        "PS2": /^(SLPS|SLPM|SCPS|SCPM|SCAJ|PAPX|PCPX)-\d{5}$/,
+        "PS3": /^(BLJM|BLJS|BCJS|BCJM|NPJA|NPJB|BCAS|BLAS)\d{5}$/,
+        "PSP": /^(ULJM|ULJS|UCJS|UCJM)-\d{5}$/,
+        "PS Vita": /^(PCSG|PCSC|PCSH|PCSD|PCSA|PCSB|PCSE|PCSF|PCSI|PCSP)\d{5}$/
       };
       assert.match(game.serial, format[platform], "invalid serial: " + game.title);
     }
     if (game.storeId !== undefined) {
       assert.equal(platform, "PSP", "storeId platform must be PSP");
-      assert.match(game.storeId, /^(NPJH|NPJG|NPJJ)\\d{5}$/, "invalid digital title id: " + game.title);
+      assert.match(game.storeId, /^(NPJH|NPJG|NPJJ)\d{5}$/, "invalid digital title id: " + game.title);
     }
-    if(game.releaseDate!==null)assert.match(game.releaseDate, /^\\d{4}-\\d{2}-\\d{2}$/);
+    if(game.releaseDate!==null)assert.match(game.releaseDate, /^\d{4}-\d{2}-\d{2}$/);
   }
   total+=expected;
   console.log("✓ "+file+": "+expected+" titles");

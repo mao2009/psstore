@@ -50,11 +50,38 @@
     node.addEventListener("click", fn);
     return node;
   }
+  function coverCandidates(game) {
+    const key = game.platform + "|" + game.title;
+    const candidates = [];
+    // Explicit, verified URL takes precedence; do not guess game/edition by name.
+    if (game.cover) candidates.push(game.cover);
+
+    const rawSerial = typeof game.coverSerial === "string" ? game.coverSerial : game.serial;
+    const compact = typeof rawSerial === "string"
+      ? rawSerial.trim().toUpperCase().replace(/[-_.\s]/g, "") : "";
+    if (/^[A-Z]{4}\d{5}$/.test(compact)) {
+      const serial = compact.slice(0, 4) + "-" + compact.slice(4);
+      if (game.platform === "PS1") {
+        candidates.push("https://raw.githubusercontent.com/xlenore/psx-covers/main/covers/default/" + serial + ".jpg");
+        candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS1/" + serial + ".jpg");
+      } else if (game.platform === "PS2") {
+        candidates.push("https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/" + serial + ".jpg");
+        candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PS2/" + serial + ".jpg");
+      } else if (game.platform === "PS Vita") {
+        candidates.push("https://raw.githubusercontent.com/SvenGDK/PSMT-Covers/main/PSVita/" + compact + ".png");
+      }
+    }
+    // Keep curated images as the final fallback, including PSP and PC Engine.
+    candidates.push(covers[key]);
+    return [...new Set(candidates.filter(url =>
+      typeof url === "string" &&
+      (/^https:\/\/[^\s]+$/.test(url) || /^\.\/assets\/covers\/[\w./%-]+$/.test(url))
+    ))];
+  }
   function coverNode(game) {
     const frame = element("div", "cover-frame");
+    frame.dataset.platform = game.platform;
     const placeholder = element("div", "cover-placeholder");
-    // The catalog has few verified cover mappings. Never fabricate an image
-    // or use a cover belonging to a different game or regional edition.
     fill(placeholder,
       element("span", "cover-icon", "▤"),
       element("span", "cover-caption", "画像未登録"),
@@ -62,28 +89,26 @@
     );
     frame.appendChild(placeholder);
 
-    const key = game.platform + "|" + game.title;
-    const url = game.cover || covers[key];
-    if (typeof url === "string" && (/^https:\/\/[^\s]+$/.test(url) || /^\.\/assets\/covers\/[\w./%-]+$/.test(url))) {
+    const candidates = coverCandidates(game);
+    if (candidates.length) {
       const img = element("img");
       img.alt = game.title + " のパッケージ画像";
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
-      img.addEventListener("load", () => {
-        // Match the artwork's actual shape: PS1/PCE square covers and
-        // PSP/PS2/PS3/Vita portrait covers must not share a forced ratio.
-        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-          frame.style.aspectRatio = img.naturalWidth + " / " + img.naturalHeight;
-        }
-        frame.classList.add("has-image");
-      }, { once: true });
-      img.addEventListener("error", () => {
+      img.addEventListener("load", () => frame.classList.add("has-image"));
+      let next = 0;
+      function tryNextCover() {
         frame.classList.remove("has-image");
-        img.remove();
-      }, { once: true });
-      img.src = url;
+        if (next >= candidates.length) {
+          img.remove();
+          return;
+        }
+        img.src = candidates[next++];
+      }
+      img.addEventListener("error", tryNextCover);
       frame.appendChild(img);
+      tryNextCover();
     }
     return frame;
   }

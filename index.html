@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e1b">
+  <meta name="description" content="PS1・PS2・PS3・PSP・PS Vita・PCエンジン、旧PlayStation Storeのゲーム3,948タイトルを横断検索。DL価格と中古相場を比較。">
+  <title>PS ARCHIVE | プレイステーション ゲームカタログ</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#catalog">ゲーム一覧へスキップ</a>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="identity" href="./" aria-label="PS ARCHIVE ホーム">
+        <span class="identity-logo" aria-hidden="true">P<span>✦</span></span>
+        <span class="identity-text"><strong>PS ARCHIVE</strong><small>THE LEGACY COLLECTION</small></span>
+      </a>
+      <nav class="topnav" aria-label="サイトメニュー">
+        <a class="topnav-active" href="#catalog">カタログ</a>
+        <a href="#about">このサイトについて</a>
+        <a href="https://github.com/mao2009/psstore" target="_blank" rel="noopener noreferrer" class="repo-link">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero shell" aria-labelledby="hero-heading">
+      <div class="hero-content">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> DIGITAL GAME PRESERVATION / JP</div>
+        <h1 id="hero-heading">あの頃のゲームを、<br><span class="hero-gradient">もう一度探そう。</span></h1>
+        <p class="hero-sub">PlayStationの歴史を横断する、旧ストア・ゲームカタログ。<br>ダウンロード価格と中古相場を、ひとつの場所で。</p>
+        <div class="hero-search">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <label class="sr-only" for="searchInput">タイトル、メーカー、備考から検索</label>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="タイトル・メーカー・キーワードで検索" spellcheck="false">
+          <kbd>/</kbd>
+        </div>
+        <div class="search-hint">例：<button type="button" class="quick-search" data-query="ペルソナ">ペルソナ</button><button type="button" class="quick-search" data-query="ファイナルファンタジー">ファイナルファンタジー</button><button type="button" class="quick-search" data-query="アーカイブス">アーカイブス</button></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="disc-rings"><div class="disc-inner"><span>PS</span><small>ARCHIVE</small></div></div>
+        <div class="hero-art-label">PLAY • DISCOVER • REMEMBER</div>
+      </div>
+    </section>
+
+    <section class="metrics shell" aria-label="カタログの統計">
+      <div class="metric"><span class="metric-icon metric-purple">▦</span><div><strong id="totalStat">—</strong><small>収録タイトル数</small></div></div>
+      <div class="metric"><span class="metric-icon metric-cyan">◈</span><div><strong>6<em>種類</em></strong><small>収録プラットフォーム</small></div></div>
+      <div class="metric"><span class="metric-icon metric-rose">⌕</span><div><strong>PS3 / Vita</strong><small>対象機器で検索可能</small></div></div>
+      <div class="metric metric-text"><span class="live-dot"></span> 静的スナップショット <small>2026年11月2日</small></div>
+    </section>
+
+    <div class="shell workbench" id="catalog">
+      <aside class="filters" aria-label="検索フィルター">
+        <div class="filter-head"><h2>絞り込み</h2><button type="button" id="resetFilters" class="reset-link">リセット ↺</button></div>
+        <div class="filter-block">
+          <h3>プラットフォーム</h3>
+          <div id="platformFilters" class="platform-filters" role="group" aria-label="プラットフォーム"></div>
+        </div>
+        <div class="filter-block">
+          <h3>対象機器</h3>
+          <p class="filter-help">実機での動作可否は作品ごとに例外があります。</p>
+          <div class="device-filter" role="group" aria-label="対象機器で絞り込み">
+            <button type="button" class="device-option" data-device="all" aria-pressed="true">すべて</button>
+            <button type="button" class="device-option" data-device="PS3" aria-pressed="false">PS3</button>
+            <button type="button" class="device-option" data-device="PS Vita" aria-pressed="false">Vita</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3>DL価格帯</h3>
+          <label class="field-label" for="priceFilter">デジタル版の価格</label>
+          <select id="priceFilter">
+            <option value="all">指定なし</option>
+            <option value="under1000">1,000円未満</option>
+            <option value="1000to3000">1,000〜2,999円</option>
+            <option value="3000to6000">3,000〜5,999円</option>
+            <option value="6000up">6,000円以上</option>
+            <option value="unknown">価格未登録</option>
+          </select>
+        </div>
+        <div class="filter-block">
+          <h3>追加条件</h3>
+          <label class="checkrow"><input type="checkbox" id="usedOnly"><span>中古相場あり</span></label>
+          <label class="checkrow"><input type="checkbox" id="availableOnly"><span>PS1配信中のみ</span></label>
+        </div>
+        <div class="filter-note"><span aria-hidden="true">ⓘ</span><p>開発元・配信元・対応機器は一部未確認です。掲載価格は参考値で、現在の購入可否を保証しません。</p></div>
+      </aside>
+
+      <section class="results" aria-label="ゲーム一覧">
+        <div class="result-toolbar">
+          <div><p class="section-kicker">GAME LIBRARY</p><h2>ゲームを探す <span id="resultCount" class="count-pill">—</span></h2></div>
+          <div class="toolbar-actions">
+            <label class="sr-only" for="sortBy">並び替え</label>
+            <select id="sortBy" aria-label="並び替え">
+              <option value="default">おすすめ順（元データ順）</option>
+              <option value="title">タイトル順（五十音）</option>
+              <option value="usedDesc">中古相場：高い順</option>
+              <option value="usedAsc">中古相場：安い順</option>
+              <option value="dlAsc">DL価格：安い順</option>
+              <option value="dlDesc">DL価格：高い順</option>
+              <option value="newest">配信日：新しい順</option>
+              <option value="oldest">配信日：古い順</option>
+            </select>
+            <div class="view-switch" role="group" aria-label="表示方式">
+              <button id="gridView" type="button" class="view-selected" aria-pressed="true" title="カード表示">▦</button>
+              <button id="listView" type="button" aria-pressed="false" title="リスト表示">☰</button>
+            </div>
+          </div>
+        </div>
+        <div id="activeFilters" class="active-filters" aria-live="polite"></div>
+        <div id="status" class="status" role="status">カタログを読み込んでいます…</div>
+        <div id="gameGrid" class="game-grid" aria-live="polite"></div>
+        <div id="pagination" class="pagination" aria-label="ページ切り替え"></div>
+      </section>
+    </div>
+
+    <section id="about" class="about shell">
+      <div class="about-mark">✧</div>
+      <div><p class="section-kicker">ABOUT THIS COLLECTION</p><h2>忘れられない作品を、探しやすく。</h2>
+      <p>旧PlayStation Store関連のゲームリストを機種別に集めた非公式の個人制作カタログです。CSV・Googleスプレッドシートをもとにした静的データを使用しています。メーカー列を配信元の参考情報として表示し、開発元は確認できるデータがない場合「未確認」と記載します。</p>
+      <p>対応機器はシリーズ単位の目安です。特にPS1・PCエンジンアーカイブスおよびPSP作品は個別の例外があり、購入・再ダウンロード・現在の販売状況もタイトルによって異なります。</p>
+      <a href="https://www.playstation.com/ja-jp/support/hardware/psvita-games/" target="_blank" rel="noopener noreferrer">PS Vita対応について（PlayStation公式） ↗</a></div>
+    </section>
+  </main>
+
+  <footer><div class="shell footer-inner"><div class="identity-text"><strong>PS ARCHIVE</strong><small>MADE FOR GAME LOVERS</small></div><p>非公式ファンサイト・権利は各権利者に帰属します。</p><a href="https://github.com/mao2009/psstore" target="_blank" rel="noopener noreferrer">SOURCE ON GITHUB ↗</a></div></footer>
+  <dialog id="detailDialog" aria-label="ゲーム詳細"><div class="dialog-head"><strong>GAME DETAILS</strong><button id="closeDialog" type="button" aria-label="閉じる">✕</button></div><div id="dialogContent"></div></dialog>
+</body>
+</html>

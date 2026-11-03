@@ -18,6 +18,16 @@ PS1 / PS2 / PS3 / PSP / PS Vita / PCエンジンの旧PlayStation Store関連タ
 - パッケージ画像は登録済みのものを枠いっぱいに表示（必要に応じて端をトリミング）。画像未登録・読み込み失敗時は「画像未登録」と表示
 - 870px以下の画面は検索条件のパネルを開閉でき、スマホでも検索・並び替え・詳細を操作可能
 
+## SNS共有ボタン（2026-11-03）
+
+- トップの検索欄の下にBluesky・X・LINE・Facebookの共有リンク、URLコピー、対応端末ではOS共有メニューを表示します。
+- SNSボタンは各サービスの投稿・共有画面を開くだけです。自動投稿、ログイン情報の取得、外部SNS SDKによる埋め込みは行いません。
+- 現在の検索・プラットフォーム・対象機器・価格帯・並び順・ページ番号は、共有URLのクエリ文字列に引き継がれます。追跡用などの余分なクエリパラメータは除外し、URLは必ず公開用の `https://mao2009.github.io/psstore/` に変換します。
+- ゲーム詳細からの「この作品の検索結果を共有」は、タイトル・プラットフォームで絞り込んだカタログのURLを生成します。専用の商品詳細ページは作っていません。
+- Blueskyは公式の [compose intent](https://bsky.network/docs/intent-links/)、LINEは [公式共有URL](https://developers.line.biz/ja/docs/line-social-plugins/install-guide/using-line-share-buttons/) を使用します。
+- URLコピーはClipboard APIを使用します。ブラウザが許可しない場合は、手動でコピーできるダイアログを開きます。
+- **注意：** OGP画像はサイト共通の静的カードです。ゲーム別や検索結果別のOGP画像ではありません。SNS側では同じOGP画像が表示されます。
+
 ## OGPカード（SNS共有時のプレビュー）
 
 - GitHub Pagesのトップページには `og:title` / `og:description` / `og:url` / `og:image` / `og:locale` と `twitter:card=summary_large_image` を静的HTMLに設定しています。JavaScriptの実行は不要です。

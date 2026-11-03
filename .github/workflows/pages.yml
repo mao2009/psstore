@@ -29,6 +29,8 @@ jobs:
         run: |
           set -euo pipefail
           node --check app.js
+          node scripts/check-catalog.mjs
+          node scripts/check-ogp.mjs
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -49,12 +51,23 @@ jobs:
           print(f'Validated {actual} titles across six platforms')
           PY
 
+      - name: Render Open Graph PNG
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python3 -m venv .ogp-venv
+          .ogp-venv/bin/python -m pip install --disable-pip-version-check -q 'CairoSVG==2.8.2'
+          .ogp-venv/bin/python scripts/render-ogp.py assets/ogp.svg ogp.png
+
       - name: Prepare published files
         shell: bash
         run: |
           mkdir public
           cp index.html app.js styles.css favicon.svg .nojekyll public/
           cp -R data public/data
+          cp ogp.png public/ogp.png
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

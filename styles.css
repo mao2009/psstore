@@ -130,3 +130,80 @@ dialog{border:1px solid #5a587c;border-radius:16px;padding:0;background:#171e2d;
 
 /* Serial and digital title identifiers displayed on cards. */
 .card-code{font-size:10px;line-height:1.4;margin-top:4px;color:#9eabc7;overflow-wrap:anywhere}
+
+
+/* Share controls: compact, high-contrast and touch-friendly on phones. */
+.share-panel{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px 13px;
+  margin-top:23px;
+}
+.share-label{
+  flex:none;
+  color:#aebcda;
+  font-size:12px;
+  font-weight:700;
+}
+.share-links{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  min-width:0;
+}
+.share-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:42px;
+  padding:9px 13px;
+  border:1px solid #42516d;
+  border-radius:11px;
+  background:#182036;
+  color:#eef4ff;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.2;
+  text-align:center;
+  white-space:nowrap;
+  transition:background .15s,border-color .15s,transform .15s;
+}
+.share-link:hover:not(:disabled){
+  background:#27324e;
+  border-color:#8497b8;
+  transform:translateY(-1px);
+}
+.share-link:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.share-link[hidden]{display:none}
+.share-link:disabled{cursor:not-allowed;opacity:.55}
+.share-link-bluesky{background:#142a48;border-color:#3274b6}
+.share-link-bluesky:hover{background:#20406d}
+.share-link-x{background:#171c2a;border-color:#52617a}
+.share-link-line{background:#122c25;border-color:#23734c}
+.share-link-facebook{background:#15243d;border-color:#325f9d}
+.share-glyph{font-size:16px;line-height:1;flex:none}
+.share-link-line .share-glyph{font-size:10px;font-weight:800;letter-spacing:-.5px}
+.share-status{color:#b6e7e1;font-size:11px;min-height:1em}
+.share-status:empty{display:none}
+.share-panel-detail{
+  margin-top:23px;
+  padding:16px 0 2px;
+  border-top:1px solid var(--line);
+}
+.share-panel-detail .share-label{flex-basis:100%}
+@media (max-width:640px){
+  .share-panel{align-items:flex-start;gap:10px;margin-top:19px}
+  .share-label{flex-basis:100%}
+  .share-links{width:100%}
+  .share-link{min-height:44px;padding:10px 12px}
+}
+@media (max-width:380px){
+  .share-links{gap:6px}
+  .share-link{padding:10px;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  .share-link{transition:none}
+}

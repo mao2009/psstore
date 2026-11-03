@@ -29,6 +29,8 @@ jobs:
         run: |
           set -euo pipefail
           node --check app.js
+          node --check share.js
+          node scripts/check-share.mjs
           node scripts/check-catalog.mjs
           node scripts/check-ogp.mjs
           python3 - <<'PY'
@@ -65,7 +67,7 @@ jobs:
         shell: bash
         run: |
           mkdir public
-          cp index.html app.js styles.css favicon.svg .nojekyll public/
+          cp index.html app.js share.js styles.css favicon.svg .nojekyll public/
           cp -R data public/data
           cp ogp.png public/ogp.png
 

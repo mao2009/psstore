@@ -30,7 +30,8 @@ for (const key of ["og:title", "og:description", "og:image:alt", "twitter:title"
 assert.match(svg, /<svg[^>]+width="1200"[^>]+height="630"/);
 assert.match(svg, /あの頃のゲームを、/);
 assert.match(svg, /3,948/);
-assert.ok(!/(?:<script|https?:\/\/)/i.test(svg), "OGP SVG must not load remote assets");
+assert.ok(!/<(?:image|script|foreignObject)\\b/i.test(svg), "OGP SVG must be self-contained");
+assert.ok(!/(?:href|xlink:href)=["\u0027]https?:/i.test(svg), "OGP SVG must not load remote assets");
 assert.ok(workflow.includes("scripts/render-ogp.py assets/ogp.svg ogp.png"));
 assert.ok(workflow.includes("cp ogp.png public/ogp.png"));
 console.log("✓ OGP metadata and 1200×630 social card publish contract");

@@ -29,6 +29,8 @@ jobs:
         run: |
           set -euo pipefail
           node --check app.js
+          node scripts/check-catalog.mjs
+          node scripts/check-ogp.mjs
           python3 - <<'PY'
           import json
           from pathlib import Path

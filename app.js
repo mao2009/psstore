@@ -187,6 +187,7 @@
     fill(note, element("h3", "", "備考"), element("p", "", game.notes || "特記事項なし"));
     if (game.compatibilityNote) note.appendChild(element("p", "", "※ " + game.compatibilityNote + "。購入・動作可否は公式情報で確認してください。"));
     fill(content, hero, fields, note);
+    if (window.PSArchiveShare) content.appendChild(window.PSArchiveShare.gamePanel(game));
     if (typeof dialog.showModal === "function") dialog.showModal();
   }
   function priceMatches(game) {
@@ -237,6 +238,7 @@
     url.searchParams.delete("used");
     url.searchParams.delete("available");
     history.replaceState(null, "", url.pathname + url.search + url.hash);
+    if (window.PSArchiveShare) window.PSArchiveShare.update();
   }
   function readURL() {
     const q = new URLSearchParams(window.location.search);

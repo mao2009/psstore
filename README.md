@@ -18,6 +18,15 @@ PS1 / PS2 / PS3 / PSP / PS Vita / PCエンジンの旧PlayStation Store関連タ
 - パッケージ画像は登録済みのものを枠いっぱいに表示（必要に応じて端をトリミング）。画像未登録・読み込み失敗時は「画像未登録」と表示
 - 870px以下の画面は検索条件のパネルを開閉でき、スマホでも検索・並び替え・詳細を操作可能
 
+## OGPカード（SNS共有時のプレビュー）
+
+- GitHub Pagesのトップページには `og:title` / `og:description` / `og:url` / `og:image` / `og:locale` と `twitter:card=summary_large_image` を静的HTMLに設定しています。JavaScriptの実行は不要です。
+- 公開先のPNG： [https://mao2009.github.io/psstore/ogp.png](https://mao2009.github.io/psstore/ogp.png)（1200×630px、SNSで共有できるPNG形式）。
+- 編集用SVG：`assets/ogp.svg`。GitHub Actionsが `scripts/render-ogp.py` を使用して `ogp.png` を生成し、Pages成果物へ格納します。CJK文字の描画用にビルド時にNoto CJKフォントを導入します。
+- ローカルで画像を再生成する場合はCairoSVGとNoto Sans CJK JPフォントを用意し、`python scripts/render-ogp.py assets/ogp.svg ogp.png` を実行してください。
+- SNS側で以前の情報がキャッシュされている場合、画像の更新がすぐに表示されないことがあります。
+- OGPはサイト全体の固定カードです。個別ゲームや検索条件ごとの動的カードには対応しません（GitHub Pagesの静的配信のため）。
+
 ## データと制約
 
 data/*.jsonはGoogleスプレッドシートから2026年11月2日に取り込んだ**静的スナップショット**です。Google Sheetとの自動同期はありません。
